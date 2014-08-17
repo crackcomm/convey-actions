@@ -6,6 +6,13 @@ this is a really dirty implementation just to pass the convey api compability, a
 
 ![Dashboard](https://bitbucket.org/actions/convey-dashboard/raw/master/screenshot.png)
 
+## functionality
+
+* Stories
+* Coverage
+* Tests watching
+* Run tests from dashboard
+
 ## watching
 
 watching for changes in tests is done using `github.com/go-fsnotify/fsnotify`
