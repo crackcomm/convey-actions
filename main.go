@@ -14,6 +14,7 @@ var (
 	dashboard  = "convey-dashboard"
 	sources    = "actions"
 	tests      = "tests"
+	watch      = true
 )
 
 func init() {
@@ -21,6 +22,7 @@ func init() {
 	flag.StringVar(&dashboard, "dashboard", dashboard, "Dashboard directory")
 	flag.StringVar(&sources, "sources", sources, "Actions sources (comma separated)")
 	flag.StringVar(&tests, "tests", tests, "Tests directory")
+	flag.BoolVar(&watch, "watch", watch, "Watch for changes in tests")
 }
 
 func main() {
@@ -34,11 +36,17 @@ func main() {
 
 	// API
 	http.Handle("/watch", &api.WatchHandler{ex})
+	http.Handle("/execute", &api.ExecuteHandler{ex})
 	http.Handle("/status/poll", &api.PollHandler{ex})
+	http.Handle("/status", &api.StatusHandler{ex})
 	http.Handle("/latest", &api.LatestHandler{ex})
 
 	// Dashboard
 	http.Handle("/", http.FileServer(http.Dir(dashboard)))
+
+	if watch {
+		go ex.Watch()
+	}
 
 	// Start listening
 	glog.Infof("Listening on address %s\n", listenaddr)

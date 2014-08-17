@@ -12,5 +12,19 @@ func (h *PollHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		timeout = 60000 // default timeout is 60 seconds
 	}
 
-	<-time.After(time.Duration(timeout) * time.Millisecond)
+	if h.Executor.Changed {
+		h.Executor.Changed = false
+		if h.Executor.Latest == nil {
+			h.Executor.Run()
+		}
+		w.Write([]byte("idle"))
+		return
+	}
+
+	select {
+	case <-h.Executor.Events():
+		w.Write([]byte("idle"))
+	case <-time.After(time.Duration(timeout) * time.Millisecond):
+		w.Write([]byte("idle"))
+	}
 }

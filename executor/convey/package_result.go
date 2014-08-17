@@ -15,6 +15,7 @@ func resultPackage(result *testing.Result) *PackageResult {
 	pkg := new(PackageResult)
 	pkg.PackageName = result.Test.Name
 	pkg.Elapsed = result.Duration.Seconds()
+	pkg.Coverage = 100
 	if result.Passed && result.Error == nil {
 		pkg.Outcome = "passed"
 	} else {
@@ -24,6 +25,11 @@ func resultPackage(result *testing.Result) *PackageResult {
 		pkg.Outcome = "failed"
 	}
 	pkg.TestResults = testResults(result)
+	for _, res := range pkg.TestResults {
+		if res.Coverage <= -1 {
+			pkg.Coverage = -1
+		}
+	}
 	return pkg
 }
 
