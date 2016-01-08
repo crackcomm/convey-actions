@@ -1,13 +1,19 @@
 package main
 
-import "flag"
-import "net/http"
-import "github.com/golang/glog"
-import "github.com/crackcomm/go-actions/core"
-import "github.com/crackcomm/convey-actions/api"
-import "github.com/crackcomm/convey-actions/executor"
-import "github.com/crackcomm/go-actions/source/utils"
-import _ "github.com/crackcomm/go-core"
+import (
+	"flag"
+	"net/http"
+	"strings"
+
+	"github.com/crackcomm/convey-actions/api"
+	"github.com/crackcomm/convey-actions/executor"
+	"github.com/crackcomm/go-actions/core"
+	"github.com/golang/glog"
+
+	_ "github.com/crackcomm/go-actions/source/file"
+	_ "github.com/crackcomm/go-actions/source/http"
+	_ "github.com/crackcomm/go-core"
+)
 
 var (
 	listenaddr = "127.0.0.1:8080"
@@ -26,20 +32,25 @@ func init() {
 }
 
 func main() {
+	defer glog.Flush()
+	flag.Set("logtostderr", "true")
+	flag.Set("v", "2")
 	flag.Parse()
 
 	// Add actions sources
-	core.AddSources(utils.GetSources(sources)...)
+	for _, source := range strings.Split(sources, ",") {
+		core.Source(source)
+	}
 
 	// Executor
 	ex := executor.New(tests)
 
 	// API
-	http.Handle("/watch", &api.WatchHandler{ex})
-	http.Handle("/execute", &api.ExecuteHandler{ex})
-	http.Handle("/status/poll", &api.PollHandler{ex})
-	http.Handle("/status", &api.StatusHandler{ex})
-	http.Handle("/latest", &api.LatestHandler{ex})
+	http.Handle("/watch", api.WatchHandler{Executor: ex})
+	http.Handle("/execute", api.ExecuteHandler{Executor: ex})
+	http.Handle("/status/poll", api.PollHandler{Executor: ex})
+	http.Handle("/status", api.StatusHandler{Executor: ex})
+	http.Handle("/latest", api.LatestHandler{Executor: ex})
 
 	// Dashboard
 	http.Handle("/", http.FileServer(http.Dir(dashboard)))

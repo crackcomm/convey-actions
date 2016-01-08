@@ -1,11 +1,17 @@
 package api
 
-import "fmt"
-import "net/http"
+import (
+	"fmt"
+	"net/http"
 
-type WatchHandler ApiHandler
+	"github.com/crackcomm/convey-actions/executor"
+)
 
-func (h *WatchHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+type WatchHandler struct {
+	*executor.Executor
+}
+
+func (h WatchHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		h.Executor.Dirname = first(r.URL.Query()["root"])
 	}

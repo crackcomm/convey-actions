@@ -1,10 +1,16 @@
 package api
 
-import "net/http"
+import (
+	"net/http"
 
-type ExecuteHandler ApiHandler
+	"github.com/crackcomm/convey-actions/executor"
+)
 
-func (h *ExecuteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+type ExecuteHandler struct {
+	*executor.Executor
+}
+
+func (h ExecuteHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.Executor.Run()
 	w.WriteHeader(http.StatusOK)
 }

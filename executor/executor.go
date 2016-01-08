@@ -1,13 +1,14 @@
 package executor
 
-import "sync"
-import "path/filepath"
-import "github.com/go-fsnotify/fsnotify"
-import "github.com/crackcomm/go-actions/core"
-import "github.com/crackcomm/go-actions/action"
-import "github.com/crackcomm/action-test/utils"
-import "github.com/crackcomm/action-test/testing"
-import "github.com/crackcomm/convey-actions/executor/convey"
+import (
+	"path/filepath"
+	"sync"
+
+	"github.com/crackcomm/action-test/testing"
+	"github.com/crackcomm/action-test/utils"
+	"github.com/crackcomm/convey-actions/executor/convey"
+	"github.com/go-fsnotify/fsnotify"
+)
 
 // NewStatus - Status of a new executor.
 var NewStatus = "executing"
@@ -21,7 +22,6 @@ type Executor struct {
 	Dirname  string
 	Status   string
 	Tests    testing.Tests
-	Actions  *action.Actions
 	Watcher  *fsnotify.Watcher
 	Latest   *convey.CompleteOutput
 	watchers []chan bool
@@ -45,9 +45,6 @@ func (e *Executor) Run() {
 	tests, _ := utils.ReadTests(e.Dirname)
 
 	e.lock.Lock()
-	// Set core actions (cleans up cached actions)
-	core.Default.Registry.Cache.Flush()
-	// Run tests
 	run := tests.Run()
 	e.lock.Unlock()
 
@@ -81,8 +78,6 @@ func (e *Executor) Watch(directories ...string) (err error) {
 		<-e.Watcher.Events
 		e.Run()
 	}
-
-	return
 }
 
 // Events - Returns channel that will return only one event, when something will change, then its closed.

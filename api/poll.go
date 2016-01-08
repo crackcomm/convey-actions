@@ -1,12 +1,18 @@
 package api
 
-import "time"
-import "strconv"
-import "net/http"
+import (
+	"net/http"
+	"strconv"
+	"time"
 
-type PollHandler ApiHandler
+	"github.com/crackcomm/convey-actions/executor"
+)
 
-func (h *PollHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+type PollHandler struct {
+	*executor.Executor
+}
+
+func (h PollHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	timeout, err := strconv.Atoi(r.URL.Query().Get("timeout"))
 	if err != nil || timeout > 180000 || timeout < 0 {
 		timeout = 60000 // default timeout is 60 seconds

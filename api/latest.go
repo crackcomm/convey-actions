@@ -1,11 +1,17 @@
 package api
 
-import "net/http"
-import "encoding/json"
+import (
+	"encoding/json"
+	"net/http"
 
-type LatestHandler ApiHandler
+	"github.com/crackcomm/convey-actions/executor"
+)
 
-func (h *LatestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+type LatestHandler struct {
+	*executor.Executor
+}
+
+func (h LatestHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if h.Executor.Latest == nil {
 		w.WriteHeader(http.StatusNotFound)
 	}

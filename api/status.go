@@ -1,10 +1,16 @@
 package api
 
-import "fmt"
-import "net/http"
+import (
+	"fmt"
+	"net/http"
 
-type StatusHandler ApiHandler
+	"github.com/crackcomm/convey-actions/executor"
+)
 
-func (h *StatusHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+type StatusHandler struct {
+	*executor.Executor
+}
+
+func (h StatusHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, h.Executor.Status)
 }
